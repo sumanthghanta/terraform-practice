@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payments-config
+data:
+  DB_HOST: "payments-db.internal"
+  DB_PORT: "5432"
+  DB_PASSWORD: "Sumanth123"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payments-service
+  template:
+    metadata:
+      labels:
+        app: payments-service
+    spec:
+      containers:
+        - name: payments
+          image: nginx
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: payments-config
+                  key: DB_HOST
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: payments-config
+                  key: DB_PASSWORD
